@@ -366,6 +366,33 @@ function rendreFiche(fiche){
   window.__derniereFiche = fiche;
 }
 
+function copierTexteAvecRepli(texte){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(texte).then(
+      ()=>alert('Fiche copiée !'),
+      ()=>copierRepli(texte)
+    );
+  } else {
+    copierRepli(texte);
+  }
+}
+
+function copierRepli(texte){
+  try{
+    const zone = document.createElement('textarea');
+    zone.value = texte;
+    zone.style.position = 'fixed';
+    zone.style.opacity = '0';
+    document.body.appendChild(zone);
+    zone.focus();
+    zone.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(zone);
+    if(ok){ alert('Fiche copiée !'); return; }
+  } catch(e){ }
+  prompt('Ton navigateur bloque la copie automatique ici. Sélectionne et copie ce texte manuellement (Ctrl+C) :', texte);
+}
+
 function copierFiche(){
   const f = window.__derniereFiche;
   if(!f) return;
@@ -373,7 +400,7 @@ function copierFiche(){
   if(f.recette.nom) texte += `RECETTE : ${f.recette.nom}\nIngrédients : ${f.recette.ingredients.join(', ')}\nÉtapes : ${f.recette.etapes.join(' / ')}\n${f.recette.pourquoi}\n\n`;
   f.axes.forEach(a=> texte += `${a.nom} : ${a.conseil}\n`);
   if(f.lien_constellation) texte += `\n${f.lien_constellation}\n`;
-  navigator.clipboard.writeText(texte).then(()=>alert('Fiche copiée !'));
+  copierTexteAvecRepli(texte);
 }
 
 async function genererFiche(){
