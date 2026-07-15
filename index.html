@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pêche — ta fiche recette & neuro-nutrition</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Poiret+One&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivoire:#faf6ef;
+    --dore:#d9b876; --dore-deep:#a9803f;
+    --sauge:#a9bfa0; --sauge-deep:#5f7a55;
+    --turquoise:#8fc1bd; --turquoise-deep:#3f7d78;
+    --rose:#e3b7b0; --rose-deep:#b06a5f;
+    --lavande:#c3b6d6; --lavande-deep:#7a63a0;
+    --encre:#3a3430; --encre-doux:#6b6259;
+    --trait:#e4dcc9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--ivoire); color:var(--encre);
+    font-family:'Cormorant Garamond', serif; font-size:18px; line-height:1.55;
+    padding:32px 18px 80px;
+  }
+  .wrap{max-width:760px; margin:0 auto;}
+  header{text-align:center; margin-bottom:34px;}
+  .logo{font-family:'Poiret One', sans-serif; font-size:44px; letter-spacing:2px; color:var(--dore-deep);}
+  .soustitre{font-style:italic; color:var(--encre-doux); font-size:19px; margin-top:2px;}
+  .baseline{font-size:15px; color:var(--sauge-deep); margin-top:10px; max-width:520px; margin-left:auto; margin-right:auto;}
+
+  .carte{
+    background:#fff; border:1px solid var(--trait); border-radius:18px;
+    padding:26px 24px; margin-bottom:22px; box-shadow:0 2px 14px rgba(169,128,63,.06);
+  }
+  h2.titre-section{
+    font-family:'Poiret One', sans-serif; font-size:22px; color:var(--dore-deep);
+    letter-spacing:1px; margin:0 0 14px;
+  }
+
+  textarea{
+    width:100%; min-height:96px; padding:14px; border-radius:12px;
+    border:1px solid var(--trait); font-family:inherit; font-size:17px;
+    resize:vertical; background:var(--ivoire);
+  }
+  textarea:focus{outline:2px solid var(--turquoise); border-color:transparent;}
+
+  .groupe-label{font-size:15px; color:var(--encre-doux); margin:18px 0 8px; font-style:italic;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .pilier-chip{
+    border:1px solid var(--trait); background:var(--ivoire); color:var(--encre);
+    padding:8px 15px; border-radius:999px; cursor:pointer; font-family:'Cormorant Garamond',serif;
+    font-size:15px; transition:.15s; user-select:none;
+  }
+  .pilier-chip:hover{border-color:var(--dore);}
+  .pilier-chip[data-active="true"]{
+    background:var(--couleur, var(--dore)); border-color:var(--couleur-deep, var(--dore-deep));
+    color:#fff; font-weight:600;
+  }
+
+  .experience-row{display:flex; gap:10px; margin-top:6px;}
+  .experience-row .pilier-chip{flex:1; text-align:center;}
+
+  button#btn-generer{
+    display:block; width:100%; margin-top:22px; padding:15px; border:none;
+    border-radius:14px; background:var(--dore-deep); color:#fff; font-family:'Poiret One',sans-serif;
+    font-size:19px; letter-spacing:1px; cursor:pointer; transition:.15s;
+  }
+  button#btn-generer:hover{background:#8a6a34;}
+  button#btn-generer:disabled{background:#c9bfa8; cursor:wait;}
+
+  .moteur-toggle{display:flex; gap:8px; margin-top:6px;}
+  .moteur-toggle .pilier-chip{flex:1; text-align:center;}
+  #moteur .pilier-chip[data-active="true"]{background:var(--turquoise-deep); border-color:var(--turquoise-deep);}
+
+  #zone-resultat{margin-top:30px;}
+  .bloc-accueil{font-style:italic; font-size:19px; color:var(--encre-doux); margin-bottom:22px; padding:16px 18px; background:#fff; border-left:3px solid var(--dore); border-radius:0 12px 12px 0;}
+
+  .carte-recette{
+    background:linear-gradient(135deg, #fff, #fbf4e8);
+    border:1px solid var(--dore); border-radius:18px; padding:26px 24px; margin-bottom:22px;
+  }
+  .carte-recette h3{font-family:'Poiret One',sans-serif; color:var(--dore-deep); font-size:24px; margin:0 0 14px;}
+  .carte-recette h4{font-size:16px; color:var(--sauge-deep); text-transform:uppercase; letter-spacing:1px; margin:16px 0 6px;}
+  .carte-recette ul{margin:0; padding-left:20px;}
+  .carte-recette li{margin-bottom:4px;}
+  .pourquoi{margin-top:14px; padding-top:14px; border-top:1px dashed var(--trait); font-style:italic; color:var(--encre-doux);}
+
+  .bloc-axe{border-left:3px solid var(--turquoise-deep); padding:4px 0 4px 16px; margin-bottom:16px;}
+  .bloc-axe .nom{font-weight:600; color:var(--turquoise-deep); font-size:17px;}
+
+  .bloc-lien{background:#fff; border:1px dashed var(--lavande-deep); border-radius:12px; padding:16px 18px; margin-bottom:22px; font-style:italic; color:var(--encre-doux);}
+
+  .outil-item{display:flex; gap:10px; margin-bottom:10px; align-items:flex-start;}
+  .outil-item .puce{color:var(--sauge-deep); font-size:20px; line-height:1.4;}
+
+  .attention{
+    background:#fbf1ec; border:1px solid var(--rose-deep); border-radius:12px;
+    padding:16px 18px; margin:22px 0; font-size:15px; color:var(--encre-doux);
+  }
+  .attention a{color:var(--dore-deep); font-weight:600;}
+
+  details.bonus{background:#fff; border:1px solid var(--trait); border-radius:12px; padding:14px 18px; margin-bottom:16px;}
+  details.bonus summary{cursor:pointer; font-family:'Poiret One',sans-serif; color:var(--lavande-deep); font-size:17px;}
+
+  .cloture{text-align:center; font-style:italic; color:var(--dore-deep); margin-top:24px; font-size:18px;}
+
+  .actions-fiche{display:flex; gap:10px; margin-top:20px;}
+  .actions-fiche button{
+    flex:1; padding:11px; border-radius:10px; border:1px solid var(--trait);
+    background:#fff; font-family:'Cormorant Garamond',serif; font-size:15px; cursor:pointer;
+  }
+  .actions-fiche button:hover{border-color:var(--dore);}
+
+  .msg-attente{text-align:center; color:var(--encre-doux); font-style:italic; padding:30px 0;}
+  .msg-erreur{background:#fbeaea; border:1px solid #c98c8c; color:#8c3a3a; padding:14px 18px; border-radius:12px;}
+
+  @media print{
+    .carte:not(#zone-resultat .carte), textarea, #btn-generer, .actions-fiche, .moteur-toggle{display:none !important;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">Pêche</div>
+    <div class="soustitre">recettes & accompagnement neuro-nutrition</div>
+    <div class="baseline">Décris ce que tu ressens ou choisis tes objectifs — Pêche te propose une recette et un éclairage relié à ton écosystème, pas une liste d'interdits.</div>
+  </header>
+
+  <div class="carte">
+    <h2 class="titre-section">Comment tu te sens aujourd'hui ?</h2>
+    <textarea id="ressenti" placeholder="Ex : je suis épuisée en fin de journée, j'ai du mal à me concentrer l'après-midi, envie d'une recette qui aide sans être compliquée..."></textarea>
+
+    <div class="groupe-label">Objectifs neuro-nutrition (combinables)</div>
+    <div class="chips" id="objectifs">
+      <button type="button" class="pilier-chip" data-chip="Concentration & mémoire">🧠 Concentration & mémoire</button>
+      <button type="button" class="pilier-chip" data-chip="Énergie & anti-fatigue">⚡ Énergie & anti-fatigue</button>
+      <button type="button" class="pilier-chip" data-chip="Gestion du stress & système nerveux">🌿 Stress & système nerveux</button>
+      <button type="button" class="pilier-chip" data-chip="Sommeil">🌙 Sommeil</button>
+      <button type="button" class="pilier-chip" data-chip="Anti-inflammatoire">🔥 Anti-inflammatoire</button>
+      <button type="button" class="pilier-chip" data-chip="Microbiote & digestion">🌾 Microbiote & digestion</button>
+      <button type="button" class="pilier-chip" data-chip="Équilibre hormonal">🌸 Équilibre hormonal</button>
+      <button type="button" class="pilier-chip" data-chip="Équilibrage alimentaire simple">🍽️ Équilibrage alimentaire simple</button>
+    </div>
+
+    <div class="groupe-label">5 Facteurs du Vivant à relier (optionnel)</div>
+    <div class="chips" id="facteurs">
+      <button type="button" class="pilier-chip" data-chip="Respiration">Respiration</button>
+      <button type="button" class="pilier-chip" data-chip="Mouvement">Mouvement</button>
+      <button type="button" class="pilier-chip" data-chip="Sommeil">Sommeil</button>
+      <button type="button" class="pilier-chip" data-chip="Alimentation">Alimentation</button>
+      <button type="button" class="pilier-chip" data-chip="Hydratation">Hydratation</button>
+    </div>
+
+    <div class="groupe-label">Boîte à outils à intégrer (optionnel)</div>
+    <div class="chips" id="outils">
+      <button type="button" class="pilier-chip" data-chip="Huiles essentielles & végétales">Huiles essentielles & végétales</button>
+      <button type="button" class="pilier-chip" data-chip="Compléments alimentaires">Compléments alimentaires</button>
+      <button type="button" class="pilier-chip" data-chip="Human Design">Human Design</button>
+      <button type="button" class="pilier-chip" data-chip="Astrologie ancrée connectée">Astrologie ancrée connectée</button>
+      <button type="button" class="pilier-chip" data-chip="Émotions">Émotions</button>
+      <button type="button" class="pilier-chip" data-chip="Transgénérationnel">Transgénérationnel</button>
+      <button type="button" class="pilier-chip" data-chip="Épigénétique">Épigénétique</button>
+      <button type="button" class="pilier-chip" data-chip="Flux et circulation du corps">Flux et circulation du corps</button>
+    </div>
+
+    <div class="groupe-label">Allergies / intolérances à respecter (optionnel — recommandé)</div>
+    <textarea id="allergies" style="min-height:52px;" placeholder="Ex : gluten, lactose, fruits à coque, œufs..."></textarea>
+
+    <div class="groupe-label">Ton niveau</div>
+    <div class="experience-row" id="experience">
+      <button type="button" class="pilier-chip" data-chip="Débutante / pas encore">Débutante / pas encore</button>
+      <button type="button" class="pilier-chip" data-chip="Habituée, je sais ce que je fais">Habituée, je sais ce que je fais</button>
+    </div>
+
+    <div class="groupe-label">Pêche pense avec <span style="font-style:italic;">— tu peux comparer les deux</span></div>
+    <div class="moteur-toggle" id="moteur">
+      <button type="button" class="pilier-chip" data-chip="claude" data-active="true">Claude</button>
+      <button type="button" class="pilier-chip" data-chip="openai">ChatGPT</button>
+    </div>
+
+    <button id="btn-generer" onclick="genererFiche()">Générer ma fiche recette</button>
+  </div>
+
+  <div id="zone-resultat"></div>
+
+</div>
+
+<script>
+const DOTERRA_REF = `Huiles essentielles de référence (gamme doTERRA CPTG, usage alimentaire possible pour certaines) : Citron, Pamplemousse, Menthe Poivrée, Gingembre, Cannelle (Cassia), Origan, Basilic, Coriandre, Fenouil, Cardamome, Curcuma (Turmeric), Encens (Frankincense), Lavande, Petit Grain Bigarade, Bergamote, Wild Orange, Copaïba. Compléments alimentaires doTERRA : Lifelong Vitality Pack (xEO Mega, Alpha CRS+, Microplex MVp), PB Assist+, Deep Blue Polyphenol Complex, Zendocrine complexe, DDR Prime complexe, GX Assist, TerraGreens, Mito2Max, Phytoestrogen complexe (femme/hormones), Cellular Vitality complexe. Toujours privilégier une huile pure et testée (type CPTG) ; ne jamais inventer un nom de produit hors de cette liste.`;
+
+let selections = { objectifs:new Set(), facteurs:new Set(), outils:new Set(), experience:null };
+let moteurChoisi = "claude";
+
+function bascculerChip(bouton, cible){
+  const actif = bouton.getAttribute('data-active') === 'true';
+  bouton.setAttribute('data-active', actif ? 'false' : 'true');
+  const val = bouton.getAttribute('data-chip');
+  if(actif){ cible.delete(val); } else { cible.add(val); }
+}
+
+document.querySelectorAll('#objectifs .pilier-chip').forEach(b=>{
+  b.addEventListener('click', ()=>bascculerChip(b, selections.objectifs));
+});
+document.querySelectorAll('#facteurs .pilier-chip').forEach(b=>{
+  b.addEventListener('click', ()=>bascculerChip(b, selections.facteurs));
+});
+document.querySelectorAll('#outils .pilier-chip').forEach(b=>{
+  b.addEventListener('click', ()=>bascculerChip(b, selections.outils));
+});
+document.querySelectorAll('#experience .pilier-chip').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#experience .pilier-chip').forEach(x=>x.setAttribute('data-active','false'));
+    b.setAttribute('data-active','true');
+    selections.experience = b.getAttribute('data-chip');
+  });
+});
+document.querySelectorAll('#moteur .pilier-chip').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#moteur .pilier-chip').forEach(x=>x.setAttribute('data-active','false'));
+    b.setAttribute('data-active','true');
+    moteurChoisi = b.getAttribute('data-chip');
+  });
+});
+
+function calculerPhaseLune(date){
+  const lunaisons = 29.53058867;
+  const connue = new Date(Date.UTC(2000,0,6,18,14));
+  const jours = (date - connue) / 86400000;
+  const phase = ((jours % lunaisons) + lunaisons) % lunaisons;
+  if(phase < 1.84566) return "Nouvelle Lune";
+  if(phase < 5.53699) return "Premier Croissant";
+  if(phase < 9.22831) return "Premier Quartier";
+  if(phase < 12.91963) return "Lune Gibbeuse Croissante";
+  if(phase < 16.61096) return "Pleine Lune";
+  if(phase < 20.30228) return "Lune Gibbeuse Décroissante";
+  if(phase < 23.99361) return "Dernier Quartier";
+  if(phase < 27.68493) return "Dernier Croissant";
+  return "Nouvelle Lune";
+}
+function calculerSaison(date){
+  const m = date.getMonth()+1, j = date.getDate();
+  if((m===3&&j>=20)||m===4||m===5||(m===6&&j<21)) return "Printemps";
+  if((m===6&&j>=21)||m===7||m===8||(m===9&&j<23)) return "Été";
+  if((m===9&&j>=23)||m===10||m===11||(m===12&&j<21)) return "Automne";
+  return "Hiver";
+}
+function contexteTemporel(){
+  const maintenant = new Date();
+  const jours=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+  const mois=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  const dateTexte = `${jours[maintenant.getDay()]} ${maintenant.getDate()} ${mois[maintenant.getMonth()]} ${maintenant.getFullYear()}`;
+  const heureTexte = `${String(maintenant.getHours()).padStart(2,'0')}h${String(maintenant.getMinutes()).padStart(2,'0')}`;
+  const phase = calculerPhaseLune(maintenant);
+  const saison = calculerSaison(maintenant);
+  return `CONTEXTE TEMPOREL RÉEL (à utiliser tel quel, ne jamais inventer d'autre position astrologique ou lunaire) : nous sommes le ${dateTexte}, il est ${heureTexte}. Phase lunaire actuelle (calcul réel) : ${phase}. Saison en cours : ${saison}. Si des ingrédients de saison sont proposés, reste cohérente avec cette saison.`;
+}
+
+function parsePecheTexte(texte){
+  const fiche = {
+    accueil:"", recette:{nom:"", ingredients:[], etapes:[], pourquoi:""},
+    axes:[], lien_constellation:"", boite_a_outils:[], a_orienter_medecin:[],
+    bonus_curieuses:"", cloture:""
+  };
+  const morceaux = texte.split(/###([A-Z_]+)###/);
+  for(let i=1; i<morceaux.length-1; i+=2){
+    const tag = morceaux[i].trim();
+    const contenuBrut = morceaux[i+1] || "";
+    const contenu = contenuBrut.trim();
+    if(!contenu) continue;
+    switch(tag){
+      case "ACCUEIL": fiche.accueil = contenu; break;
+      case "RECETTE_NOM": fiche.recette.nom = contenu; break;
+      case "RECETTE_INGREDIENTS":
+        fiche.recette.ingredients = contenuBrut.split("\n").map(l=>l.trim().replace(/^[-•\d.]+\s*/,"")).filter(Boolean);
+        break;
+      case "RECETTE_ETAPES":
+        fiche.recette.etapes = contenuBrut.split("\n").map(l=>l.trim().replace(/^[-•\d.]+\s*/,"")).filter(Boolean);
+        break;
+      case "RECETTE_POURQUOI": fiche.recette.pourquoi = contenu; break;
+      case "AXE": {
+        const p = contenu.split("||").map(s=>s.trim());
+        if(p[0]) fiche.axes.push({nom:p[0], conseil:p[1]||""});
+        break;
+      }
+      case "LIEN": fiche.lien_constellation = contenu; break;
+      case "OUTIL": {
+        const p = contenu.split("||").map(s=>s.trim());
+        if(p[0]) fiche.boite_a_outils.push({nom:p[0], usage:p[1]||"", prudence:p[2]||""});
+        break;
+      }
+      case "MEDECIN": fiche.a_orienter_medecin = contenu.split("||").map(s=>s.trim()).filter(Boolean); break;
+      case "BONUS": fiche.bonus_curieuses = contenu; break;
+      case "CLOTURE": fiche.cloture = contenu; break;
+    }
+  }
+  return fiche;
+}
+
+function rendreFiche(fiche){
+  const zone = document.getElementById('zone-resultat');
+  let html = "";
+
+  if(fiche.accueil){
+    html += `<div class="bloc-accueil">${fiche.accueil}</div>`;
+  }
+
+  if(fiche.recette.nom){
+    html += `<div class="carte-recette"><h3>🍽️ ${fiche.recette.nom}</h3>`;
+    if(fiche.recette.ingredients.length){
+      html += `<h4>Ingrédients</h4><ul>${fiche.recette.ingredients.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+    }
+    if(fiche.recette.etapes.length){
+      html += `<h4>Préparation</h4><ul>${fiche.recette.etapes.map(e=>`<li>${e}</li>`).join('')}</ul>`;
+    }
+    if(fiche.recette.pourquoi){
+      html += `<div class="pourquoi">${fiche.recette.pourquoi}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  if(fiche.axes.length){
+    html += `<div class="carte">`;
+    fiche.axes.forEach(a=>{
+      html += `<div class="bloc-axe"><div class="nom">${a.nom}</div><div>${a.conseil}</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  if(fiche.lien_constellation){
+    html += `<div class="bloc-lien">${fiche.lien_constellation}</div>`;
+  }
+
+  if(fiche.boite_a_outils.length){
+    html += `<div class="carte"><h2 class="titre-section">Boîte à outils</h2>`;
+    fiche.boite_a_outils.forEach(o=>{
+      html += `<div class="outil-item"><span class="puce">✦</span><div><strong>${o.nom}</strong>${o.usage?` — ${o.usage}`:""}${o.prudence?`<br><em style="color:var(--encre-doux); font-size:15px;">${o.prudence}</em>`:""}</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  if(fiche.a_orienter_medecin.length){
+    html += `<div class="attention"><strong>À évoquer avec un professionnel de santé :</strong><br>${fiche.a_orienter_medecin.join(' · ')}<br><br>En cas de doute, pour toute cliente enceinte, allaitante, avec une pathologie/un traitement en cours, ou face à une relation difficile avec l'alimentation, il est plus prudent d'attendre la confirmation d'une conseillère avant de commencer : <a href="mailto:severinediamanti@gmail.com">severinediamanti@gmail.com</a> · <a href="https://wa.me/33664041126">WhatsApp 06 64 04 11 26</a>.</div>`;
+  } else {
+    html += `<div class="attention">Contenu de soutien bien-être, jamais un diagnostic ni un plan alimentaire médical. En cas de doute, pour toute cliente enceinte, allaitante, avec une pathologie/un traitement en cours, ou face à une relation difficile avec l'alimentation, il est plus prudent d'attendre la confirmation d'une conseillère avant de commencer : <a href="mailto:severinediamanti@gmail.com">severinediamanti@gmail.com</a> · <a href="https://wa.me/33664041126">WhatsApp 06 64 04 11 26</a>.</div>`;
+  }
+
+  if(fiche.bonus_curieuses){
+    html += `<details class="bonus"><summary>Pour aller plus loin</summary><div style="margin-top:10px;">${fiche.bonus_curieuses}</div></details>`;
+  }
+
+  if(fiche.cloture){
+    html += `<div class="cloture">${fiche.cloture}</div>`;
+  }
+
+  html += `<div class="actions-fiche">
+    <button onclick="window.print()">🖨️ Imprimer</button>
+    <button onclick="copierFiche()">📋 Copier</button>
+  </div>`;
+
+  zone.innerHTML = html;
+  window.__derniereFiche = fiche;
+}
+
+function copierFiche(){
+  const f = window.__derniereFiche;
+  if(!f) return;
+  let texte = `${f.accueil}\n\n`;
+  if(f.recette.nom) texte += `RECETTE : ${f.recette.nom}\nIngrédients : ${f.recette.ingredients.join(', ')}\nÉtapes : ${f.recette.etapes.join(' / ')}\n${f.recette.pourquoi}\n\n`;
+  f.axes.forEach(a=> texte += `${a.nom} : ${a.conseil}\n`);
+  if(f.lien_constellation) texte += `\n${f.lien_constellation}\n`;
+  navigator.clipboard.writeText(texte).then(()=>alert('Fiche copiée !'));
+}
+
+async function genererFiche(){
+  const ressenti = document.getElementById('ressenti').value.trim();
+  const allergies = document.getElementById('allergies').value.trim();
+  if(!ressenti && selections.objectifs.size===0 && selections.facteurs.size===0){
+    alert("Décris ce que tu ressens ou choisis au moins un objectif.");
+    return;
+  }
+  const btn = document.getElementById('btn-generer');
+  btn.disabled = true; btn.textContent = "Pêche compose ta fiche...";
+  document.getElementById('zone-resultat').innerHTML = `<div class="msg-attente">Pêche relie tes objectifs à une recette et à ton écosystème...</div>`;
+
+  const blocOutilsDoterra = (selections.outils.has("Huiles essentielles & végétales") || selections.outils.has("Compléments alimentaires")) ? `\n\n${DOTERRA_REF}` : "";
+
+  const prompt = `Tu es Pêche, une guide chaleureuse spécialisée en recettes et en accompagnement neuro-nutrition, au sein de l'écosystème WebiFemme (formation pour femmes 35-55 ans organisée autour des 5 Facteurs du Vivant : Respiration, Mouvement, Sommeil, Alimentation, Hydratation, et d'une Boîte à outils profonde : huiles essentielles/huiles végétales doTERRA, compléments alimentaires, Human Design, astrologie ancrée connectée, émotions, transgénérationnel, épigénétique, flux et circulation du corps).
+
+Philosophie : "Une femme n'est pas un symptôme, une femme est un écosystème." Tu ne donnes jamais une recette isolée : tu la relies toujours à ce que vit la cliente. Ton ton est chaleureux, incarné, jamais clinique, jamais culpabilisant. Tu ne parles jamais de restriction, de calories, ni de perte de poids — uniquement de nourrir le corps et le système nerveux.${blocOutilsDoterra}
+
+Ce que ressent la cliente : "${ressenti || "(non précisé, base-toi sur les objectifs choisis)"}"
+Objectifs neuro-nutrition choisis : ${selections.objectifs.size ? [...selections.objectifs].join(', ') : "aucun précisé"}
+Facteurs du Vivant à relier : ${selections.facteurs.size ? [...selections.facteurs].join(', ') : "aucun précisé"}
+Boîte à outils à intégrer : ${selections.outils.size ? [...selections.outils].join(', ') : "aucune précisée"}
+Allergies / intolérances à respecter impérativement : ${allergies || "aucune mentionnée — si le ressenti suggère une restriction alimentaire non listée ici, reste prudente et propose une alternative"}
+Niveau d'expérience : ${selections.experience || "non précisé, reste pédagogique"}
+
+${contexteTemporel()}
+
+Règles non négociables :
+1. Si le ressenti suggère un trouble du comportement alimentaire, une restriction excessive, une obsession du contrôle alimentaire ou une relation difficile à la nourriture, NE PROPOSE AUCUN CONSEIL RESTRICTIF. Reste bienveillante, ne culpabilise jamais, et oriente vers un professionnel de santé (médecin, diététicien, psychologue spécialisé TCA) dans la balise MEDECIN.
+2. Respecte strictement les allergies/intolérances mentionnées ; en cas de doute sur un ingrédient, propose une alternative plutôt que de risquer une réaction.
+3. Si des huiles essentielles sont proposées en usage alimentaire, précise qu'il s'agit d'une huile pure et testée (type CPTG doTERRA), avec un dosage prudent (1 à 2 gouttes maximum sauf indication contraire).
+4. La recette doit être simple, réalisable, avec des ingrédients courants (éventuellement de saison selon le contexte temporel donné).
+5. N'invente jamais de nom de produit hors de la liste de référence doTERRA si elle est fournie.
+6. Si "Équilibrage alimentaire simple" est choisi, appuie-toi uniquement sur des repères visuels simples et reconnus : l'assiette santé équilibrée (moitié légumes, un quart protéines, un quart féculents), la pyramide alimentaire, et/ou la méthode des portions avec les mains (paume = protéines, poing = légumes, main en coupe = féculents/légumineuses, pouce = matières grasses). Jamais de comptage de calories ni de grammes.
+
+Réponds UNIQUEMENT avec ce format à balises, rempli avec un contenu réel et personnalisé (pas de crochets ni de placeholders) :
+
+###ACCUEIL###
+[2-3 phrases d'accueil empathique qui reformulent ce que vit la cliente]
+###RECETTE_NOM###
+[nom appétissant de la recette]
+###RECETTE_INGREDIENTS###
+[un ingrédient par ligne, avec quantité]
+###RECETTE_ETAPES###
+[une étape par ligne, numérotée naturellement]
+###RECETTE_POURQUOI###
+[2-3 phrases expliquant en quoi cette recette soutient les objectifs neuro-nutrition choisis]
+###AXE###
+[nom de l'axe 1] || [conseil relié, 2-3 phrases]
+###AXE###
+[nom de l'axe 2 si pertinent] || [conseil relié]
+###LIEN###
+[1 paragraphe qui relie les axes/facteurs entre eux comme un écosystème]
+###OUTIL###
+[nom outil 1] || [usage concret] || [prudence si applicable, sinon laisser vide après le dernier ||]
+###OUTIL###
+[nom outil 2 si pertinent] || [usage] || [prudence]
+###MEDECIN###
+[point 1 à évoquer avec un professionnel] || [point 2 si pertinent]
+###BONUS###
+[un petit approfondissement optionnel : lien Human Design / astrologie / émotionnel selon les chips choisies]
+###CLOTURE###
+[une phrase de clôture chaleureuse et inspirante]
+###FIN###`;
+
+  try{
+    const reponse = await fetch("/api/peche", {
+      method: "POST",
+      headers: {"content-type": "application/json"},
+      body: JSON.stringify({ prompt, moteur: moteurChoisi })
+    });
+    const data = await reponse.json();
+    if(!reponse.ok) throw new Error(data.error || "Erreur serveur.");
+    const texte = data.texte || "";
+    const debut = texte.indexOf("###ACCUEIL###");
+    if(debut === -1) throw new Error("Format de réponse inattendu.");
+    const fiche = parsePecheTexte(texte.slice(debut));
+    if(!fiche.accueil && !fiche.recette.nom){
+      throw new Error("La fiche générée est vide.");
+    }
+    rendreFiche(fiche);
+  } catch(err){
+    document.getElementById('zone-resultat').innerHTML = `<div class="msg-erreur">Un souci est survenu pendant la génération (${err.message || err}). Réessaie, ou reformule ta demande.</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = "Générer ma fiche recette";
+  }
+}
+</script>
+</body>
+</html>
